@@ -1,0 +1,40 @@
+[project]
+name = "local-ai"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Dev Rishi Khare", email = "devrishik@gmail.com" }
+]
+dependencies = [
+    "dspy>=2.5.29",
+    "torch==2.5.1+cu124",
+    "torchvision==0.20.1+cu124",
+    "torchaudio==2.5.1+cu124",
+    "transformers>=4.46.2",
+    "accelerate>=1.1.1",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "ipython>=8.29.0",
+]
+
+[[tool.rye.sources]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu124"
+
+[tool.rye.scripts]
+optimize = "python src/local_ai/main.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/local_ai"]
