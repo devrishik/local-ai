@@ -36,7 +36,7 @@ The system automatically detects and utilizes the best available hardware accele
 
 2. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:devrishik/local-ai.git
    cd dspy-prompt-optimizer
    ```
 
@@ -79,19 +79,15 @@ Memory Allocated: 1.3GB VRAM
 
 ## 🗃️ Project Structure
 
-```
 dspy-prompt-optimizer/
 ├── README.md
 ├── pyproject.toml
-├── requirements.txt
 ├── src/
-│   ├── optimizer.py
-│   ├── hardware_detection.py
-│   └── models/
-│       ├── llama.py
-│       └── mistral.py
-└── tests/
-    └── test_optimizer.py
+│   └── local_ai/
+│       ├── __init__.py
+│       ├── main.py
+│       └── ml/
+│           └── models.py
 ```
 
 ## 💾 Hardware Requirements
