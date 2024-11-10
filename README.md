@@ -37,7 +37,7 @@ The system automatically detects and utilizes the best available hardware accele
 2. **Clone the repository**:
    ```bash
    git clone git@github.com:devrishik/local-ai.git
-   cd dspy-prompt-optimizer
+   cd local-ai
    ```
 
 3. **Install dependencies**:
