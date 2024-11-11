@@ -4,8 +4,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 class LocalLanguageModel:
     """Wrapper for local language models to use with DSPy."""
     
-    def __init__(self, model_name: str = "microsoft/phi-2"):
+    def __init__(self, model_name: str = "microsoft/phi-2", temperature: float = 0.7):
         """Initialize local model and tokenizer."""
+        self.temperature = temperature
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_name,
@@ -17,19 +18,32 @@ class LocalLanguageModel:
             # load_in_4bit=True
         )
 
+        # Add required kwargs for DSPy compatibility
+        self.kwargs = {
+            "temperature": temperature,
+            "max_tokens": 512,
+            "top_p": 0.9,
+            "top_k": 50,
+            "repetition_penalty": 1.2
+        }
+        self.model.kwargs = self.kwargs
+        
+
     def __call__(self, prompt: str, **kwargs) -> str:
         """Make the class callable for DSPy compatibility."""
-        return self.generate(prompt)
+        generation_kwargs = {**self.kwargs, **kwargs}
+        return self.generate(prompt, **generation_kwargs)
         
-    def generate(self, prompt: str, max_length: int = 512, temperature: float = 0.7) -> str:
+    def generate(self, prompt: str, max_length: int = 512) -> str:
         """Generate text using the local model."""
+        
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
         
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
                 max_length=max_length,
-                temperature=temperature,
+                temperature=self.temperature,
                 do_sample=True,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
@@ -41,7 +55,7 @@ class LocalMistral(LocalLanguageModel):
     def __init__(self, model_name: str = "mistralai/Mistral-1B-Instruct-v0.2"):
         super().__init__(model_name)
     
-    def generate(self, prompt: str, max_length: int = 512, temperature: float = 0.7) -> str:
+    def generate(self, prompt: str, max_length: int = 512) -> str:
         """Generate text using the local model."""
         # Format prompt according to Mistral's instruction format
         formatted_prompt = f"<s>[INST] {prompt} [/INST]"
@@ -51,8 +65,8 @@ class LocalMistral(LocalLanguageModel):
         with torch.no_grad():
             outputs = self.model.generate(
                 **inputs,
+                temperature=self.temperature,
                 max_length=max_length,
-                temperature=temperature,
                 do_sample=True,
                 pad_token_id=self.tokenizer.eos_token_id,
                 # Mistral specific parameters
@@ -71,7 +85,7 @@ class LocalLlama3(LocalLanguageModel):
     def __init__(self, model_name: str = "meta-llama/Llama-3.2-1B-Instruct"):
         super().__init__(model_name)
     
-    def generate(self, prompt: str, max_length: int = 512, temperature: float = 0.7) -> str:
+    def generate(self, prompt: str, max_length: int = 512) -> str:
         """Generate text using the local model."""
         # Format prompt according to TinyLlama's chat format
         formatted_prompt = f"<|system|>You are a helpful assistant.</s><|user|>{prompt}</s><|assistant|>"
@@ -82,7 +96,7 @@ class LocalLlama3(LocalLanguageModel):
             outputs = self.model.generate(
                 **inputs,
                 max_length=max_length,
-                temperature=temperature,
+                temperature=self.temperature,
                 do_sample=True,
                 pad_token_id=self.tokenizer.eos_token_id,
                 # TinyLlama specific parameters
