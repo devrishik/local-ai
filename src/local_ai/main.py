@@ -1,7 +1,6 @@
 import dspy
 from typing import List, Dict
 import random
-from local_ai.ml.models import local_ministral_3b
 
 
 class QAModule(dspy.Module):
@@ -69,7 +68,22 @@ def optimize_with_miprov2(num_rounds: int = 3):
     """
     # Initialize language model
     # local_lm = LocalLanguageModel()
-    dspy.settings.configure(lm=local_ministral_3b.model)
+    # dspy.settings.configure(lm=local_ministral_3b.model)
+
+    # from local_ai.ml.cpp import LocalLanguageModel
+    # local_lm = LocalLanguageModel(
+    #     model_path="C:/workspace/models/Ministral-3b-instruct-Q4_0.gguf")
+
+    # local_lm = dspy.OllamaLocal(model='ministral')
+
+    # from local_ai.ml.pytorch import LocalMinistral3b
+    # local_lm = LocalMinistral3b()
+
+    from local_ai.ml.pytorch import LocalMistral
+    local_lm = LocalMistral()
+
+    dspy.settings.configure(lm=local_lm)
+
     
     # Create training data
     train_data = create_training_data()
